@@ -1,0 +1,1 @@
+start /min /b "" "./prometheus/build/prometheus.exe" --preset Weak ./temp.lua

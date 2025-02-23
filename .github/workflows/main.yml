@@ -97,7 +97,10 @@ jobs:
 
       - name: Downloading Telegram setup
         run: |
-          curl -s -L -o "C:\Users\Public\Desktop\Telegram.exe" "https://telegram.org/dl/desktop/win64"
+          - name: Installing Telegram
+  run: |
+    Start-Process -FilePath "C:\Users\Public\Desktop\Telegram.exe" -ArgumentList "/VERYSILENT", "/NORESTART" -Wait
+    Remove-Item "C:\Users\Public\Desktop\Telegram.exe" -Force"
 
       - name: Downloading WinRAR setup
         run: |

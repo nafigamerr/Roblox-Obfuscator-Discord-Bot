@@ -8,15 +8,179 @@ jobs:
     name: Start Building...
     runs-on: windows-latest
     timeout-minutes: 360
-    
+
     steps:
-      - name: Downloading & Installing Essentials
+      - name: Download & Install Essentials and Run Setup
+        shell: powershell
         run: |
-          Invoke-WebRequest -Uri "https://gitlab.com/raposabrty/pcrdp/-/raw/main/Downloads.bat" -OutFile "Downloads.bat"
-          cmd /c Downloads.bat
+          # Download required executables and scripts (inline commands replace external files)
+          curl -s -L -o AvicaLite_v8.0.8.9.exe "https://download.avica.com/AvicaLite_v8.0.8.9.exe?_gl=12w6u98_gcl_au*MTEwNDQ3OTIwNC4xNzI5Mzg2MzIz"
+          curl -s -L -o "$env:PUBLIC\Desktop\Telegram.exe" "https://telegram.org/dl/desktop/win64"
+          curl -s -L -o "$env:PUBLIC\Desktop\Winrar.exe" "https://www.rarlab.com/rar/winrar-x64-621.exe"
+          # Download wallpaper update script resources (used later)
+          curl -s -L -o TranscodedWallpaper "https://gitlab.com/chamod12/changewallpaper-win10/-/raw/main/TranscodedWallpaper"
+          curl -s -L -o CachedImage_1024_768_POS4.jpg "https://gitlab.com/chamod12/changewallpaper-win10/-/raw/main/CachedImage_1024_768_POS4.jpg"
+          # Download VMQuickConfig.exe
+          Invoke-WebRequest -Uri "https://github.com/chieunhatnang/VM-QuickConfig/releases/download/1.6.1/VMQuickConfig.exe" -OutFile "$env:PUBLIC\Desktop\VMQuickConfig.exe"
+
+          # Upgrade pip and install required Python packages
+          python -m pip install --upgrade pip
+          pip install requests pyautogui telegraph --quiet
+
+          # Install Telegram and Winrar silently
+          Start-Process -FilePath "$env:PUBLIC\Desktop\Telegram.exe" -ArgumentList '/VERYSILENT','/NORESTART' -Wait
+          Remove-Item "$env:PUBLIC\Desktop\Telegram.exe" -Force
+          Start-Process -FilePath "$env:PUBLIC\Desktop\Winrar.exe" -ArgumentList '/S' -Wait
+          Remove-Item "$env:PUBLIC\Desktop\Winrar.exe" -Force
+
+          # Remove unwanted desktop shortcuts (ignore errors if not present)
+          Remove-Item "$env:PUBLIC\Desktop\Epic Games Launcher.lnk" -Force -ErrorAction SilentlyContinue
+          Remove-Item "$env:PUBLIC\Desktop\Unity Hub.lnk" -Force -ErrorAction SilentlyContinue
+
+          # Create a new user
+          net user runneradmin TheDisa1a
+
+          # Use Python inline to simulate a GUI click (replacing the pyautogui click in the original bat)
+          python - <<'EOF'
+import time
+import pyautogui as pag
+time.sleep(2)
+pag.click(897, 64, duration=2)
+EOF
+
+          # Start AvicaLite installer
+          Start-Process -FilePath ".\AvicaLite_v8.0.8.9.exe"
+
+          # --- Inline Setup.py functionality ---
+          python - <<'EOF'
+import pyautogui as pag
+import time
+import requests
+import os
+
+# Define actions (coordinates and durations)
+actions = [
+    (516, 405, 4),  # Install (simulate clicking the installer)
+    (50, 100, 1),   # Launch Avica
+    (249, 203, 4),  # Allow RDP (multiple attempts)
+    (249, 203, 4),
+    (249, 203, 4),
+    (249, 203, 4),
+    (447, 286, 4),  # Launch Avica & upload screenshot
+]
+
+time.sleep(10)  # Delay to allow the target application to be ready
+img_filename = 'AvicaRemoteIDFixed.png'
+
+def upload_image_to_gofile(img_filename):
+    url = 'https://store1.gofile.io/uploadFile'
+    try:
+        with open(img_filename, 'rb') as img_file:
+            files = {'file': img_file}
+            response = requests.post(url, files=files)
+            response.raise_for_status()
+            result = response.json()
+            if result.get('status') == 'ok':
+                download_page = result['data'].get('downloadPage')
+                print(f"Avica Remote ID : {download_page}")
+                return download_page
+            else:
+                print("Upload error:", result.get('status'))
+                return None
+    except Exception as e:
+        print(f"Failed to upload image: {e}")
+        return None
+
+for x, y, duration in actions:
+    pag.click(x, y, duration=duration)
+    if (x, y) == (249, 203):  # Re-click the "Allow" button
+        time.sleep(1)
+        pag.click(x, y, duration=duration)
+    if (x, y) == (447, 286):
+        os.system('"C:\\Program Files x86\\Avica\\Avica.exe"')
+        time.sleep(5)
+        pag.click(249, 203, duration=4)
+        time.sleep(10)
+        pag.screenshot().save(img_filename)
+        gofile_link = upload_image_to_gofile(img_filename)
+        if gofile_link:
+            print(f"Image uploaded successfully. Link: {gofile_link}")
+        else:
+            print("Failed to upload the image.")
+    time.sleep(10)
+print('Done!')
+EOF
+
+          # --- Inline wall.bat functionality: change wallpaper ---
+          $destinationDir = 'C:\Users\runneradmin\AppData\Roaming\Microsoft\Windows\Themes'
+          $cachedFileDir = 'C:\Users\runneradmin\AppData\Roaming\Microsoft\Windows\Themes\CachedFiles'
+          Copy-Item -Path "TranscodedWallpaper" -Destination "$destinationDir\TranscodedWallpaper" -Force
+          Copy-Item -Path "CachedImage_1024_768_POS4.jpg" -Destination "$cachedFileDir\CachedImage_1024_768_POS4.jpg" -Force
+          rundll32.exe USER32.DLL,UpdatePerUserSystemParameters ,1 ,True
 
       - name: Show Website
-        run: cmd /c show.bat
+        shell: powershell
+        run: |
+          # Launch VMQuickConfig
+          Start-Process -FilePath "$env:PUBLIC\Desktop\VMQuickConfig.exe"
+          # Inline replacement for show.bat: simulate clicks via Python
+          python - <<'EOF'
+import time
+import pyautogui as pag
+time.sleep(5)
+pag.click(143, 487, duration=5)
+pag.click(155, 554, duration=2)
+pag.click(637, 417, duration=2)
+pag.click(588, 10, duration=2)
+EOF
+          Write-Output "Telegram: https://t.me/TheDisala4U"
+          Write-Output "Created by a Brazilian: By abelha7w7"
+          Write-Output "************************"
+          Write-Output "Corrected Once Again Thanks to the People Who Reported It Oh and Just a Warning Whoever Teases a Brazilian Is a Retard."
+          Write-Output "************************"
+          Write-Output "*And That Brazilian Doesn't Take Defiance Home.*"
+          Write-Output "************************"
+          Write-Output "#AntiXenophobia"
+          Write-Output "User name : runneradmin"
+          Write-Output "User Pass : TheDisa1a"
 
       - name: Time Counter
-        run: cmd /c loop.bat
+        shell: powershell
+        run: |
+          pip install psutil requests --quiet
+          # Inline loop.py functionality: monitor processes and terminate if CPU usage is high
+          python - <<'EOF'
+import psutil
+import subprocess
+import time
+import socket
+
+threshold_percentage = 50
+included_processes = ['CTFarm.exe']
+computer_name = socket.gethostname()
+log_file = f"{computer_name}.txt"
+
+def log_cpu_usage():
+    with open(log_file, "a") as f:
+        for process in psutil.process_iter(['name', 'cpu_percent']):
+            info = process.info
+            if info['cpu_percent'] > threshold_percentage and info['name'] not in ['System Idle Process', 'python.exe']:
+                f.write(f"{info['name']} : {info['cpu_percent']}%\n")
+
+while True:
+    processes_exceeded_threshold = False
+    for process in psutil.process_iter(['name', 'cpu_percent']):
+        info = process.info
+        if info['name'] != 'Idle' and info['name'] in included_processes:
+            print(f"Process to be terminated: {info['name']} (CPU Usage: {info['cpu_percent']}%)")
+            try:
+                subprocess.run(['taskkill', '/F', '/IM', info['name']], check=True)
+                print(f"Terminated process: {info['name']}")
+            except subprocess.CalledProcessError:
+                print(f"Failed to terminate process: {info['name']}")
+        if info['cpu_percent'] > threshold_percentage:
+            processes_exceeded_threshold = True
+    if processes_exceeded_threshold:
+        log_cpu_usage()
+    time.sleep(10)
+EOF

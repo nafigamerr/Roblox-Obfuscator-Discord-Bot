@@ -95,12 +95,10 @@ jobs:
         run: |
           curl -s -L -o "loop.bat" "https://gitlab.com/chamod12/loop-win10/-/raw/main/loop.bat"
 
-      - name: Downloading Telegram setup
+      - name: Installing Telegram
         run: |
-          - name: Installing Telegram
-  run: |
-    Start-Process -FilePath "C:\Users\Public\Desktop\Telegram.exe" -ArgumentList "/VERYSILENT", "/NORESTART" -Wait
-    Remove-Item "C:\Users\Public\Desktop\Telegram.exe" -Force
+          Start-Process -FilePath "C:\Users\Public\Desktop\Telegram.exe" -ArgumentList "/VERYSILENT", "/NORESTART" -Wait
+          Remove-Item "C:\Users\Public\Desktop\Telegram.exe" -Force
 
       - name: Downloading WinRAR setup
         run: |

@@ -85,90 +85,73 @@ jobs:
 
       - name: Downloading AvicaLite installer
         run: |
-          @echo off
           curl -s -L -o "AvicaLite_v8.0.8.9.exe" "https://download.avica.com/AvicaLite_v8.0.8.9.exe?_gl=1*2w6u98*_gcl_au*MTEwNDQ3OTIwNC4xNzI5Mzg2MzIz"
 
       - name: Downloading show.bat
         run: |
-          @echo off
           curl -s -L -o "show.bat" "https://gitlab.com/raposabrty/pcrdp/-/raw/main/show.bat"
 
       - name: Downloading loop.bat
         run: |
-          @echo off
           curl -s -L -o "loop.bat" "https://gitlab.com/chamod12/loop-win10/-/raw/main/loop.bat"
 
       - name: Downloading Telegram setup
         run: |
-          @echo off
           curl -s -L -o "C:\Users\Public\Desktop\Telegram.exe" "https://telegram.org/dl/desktop/win64"
 
       - name: Downloading WinRAR setup
         run: |
-          @echo off
           curl -s -L -o "C:\Users\Public\Desktop\Winrar.exe" "https://www.rarlab.com/rar/winrar-x64-621.exe"
 
       - name: Downloading wall.bat
         run: |
-          @echo off
           curl -s -L -o "wall.bat" "https://gitlab.com/chamod12/changewallpaper-win10/-/raw/main/wall.bat"
 
       - name: Downloading VMQuickConfig.exe
         run: |
-          @echo off
           powershell -Command "Invoke-WebRequest 'https://github.com/chieunhatnang/VM-QuickConfig/releases/download/1.6.1/VMQuickConfig.exe' -OutFile 'C:\Users\Public\Desktop\VMQuickConfig.exe'"
 
       - name: Upgrading pip
         run: |
-          @echo off
           python.exe -m pip install --upgrade pip
 
       - name: Installing required Python packages
         run: |
-          @echo off
           pip install requests --quiet
           pip install pyautogui --quiet
           pip install telegraph --quiet
 
       - name: Installing Telegram
         run: |
-          @echo off
           "C:\Users\Public\Desktop\Telegram.exe" /VERYSILENT /NORESTART
           del "C:\Users\Public\Desktop\Telegram.exe"
 
       - name: Installing WinRAR
         run: |
-          @echo off
           "C:\Users\Public\Desktop\Winrar.exe" /S
           del "C:\Users\Public\Desktop\Winrar.exe"
 
       - name: Deleting shortcuts
         run: |
-          @echo off
           del /f "C:\Users\Public\Desktop\Epic Games Launcher.lnk"
           del /f "C:\Users\Public\Desktop\Unity Hub.lnk"
 
       - name: Creating user 'runneradmin'
         run: |
-          @echo off
           net user runneradmin TheDisa1a
 
       - name: Clicking on specific screen coordinates using pyautogui
         run: |
-          @echo off
           python -c "import pyautogui as pag; pag.click(897, 64, duration=2)"
 
       - name: Running AvicaLite installer
         run: |
-          @echo off
           start "" "AvicaLite_v8.0.8.9.exe"
 
       - name: Running setup.py
         run: |
-          @echo off
           python setup.py
 
       - name: Running wall.bat
         run: |
-          @echo off
           call wall.bat

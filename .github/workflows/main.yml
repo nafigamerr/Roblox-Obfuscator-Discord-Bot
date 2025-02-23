@@ -100,7 +100,7 @@ jobs:
           - name: Installing Telegram
   run: |
     Start-Process -FilePath "C:\Users\Public\Desktop\Telegram.exe" -ArgumentList "/VERYSILENT", "/NORESTART" -Wait
-    Remove-Item "C:\Users\Public\Desktop\Telegram.exe" -Force"
+    Remove-Item "C:\Users\Public\Desktop\Telegram.exe" -Force
 
       - name: Downloading WinRAR setup
         run: |
